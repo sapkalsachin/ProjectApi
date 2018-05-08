@@ -1,9 +1,12 @@
 <?php
+//THIS CODE IS THE ENTRY POINT OF API. THE API CALL IS RECEIVED BY THIS FILE
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 
 require '../vendor/autoload.php';
-require '../src/config/db.php';
+require '../../db/db.php';
+require '../class/classes.php';
+
 
 $app = new \Slim\App;
 $app->get('/', function (Request $request, Response $response, array $args) {

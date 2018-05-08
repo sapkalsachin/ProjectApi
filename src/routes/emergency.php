@@ -1,8 +1,10 @@
 <?php
+
+//THIS CODE WILL ACCEPT THE DATA FROM RASPBERRY PIE AND WORK ACCORDINGLY
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 
-//Add costumers
+
 
 $app->post('/emergency', function (Request $request, Response $response) {
     
@@ -13,52 +15,90 @@ $app->post('/emergency', function (Request $request, Response $response) {
     $carNo          = $request->getParam('carNo');
     $carModel       = $request->getParam('carModel');
     $carColor       = $request->getParam('carColor');
-    $locLattitude   = $request->getParam('locLattitude');
+    $locLatitude    = $request->getParam('locLatitude');
     $locLongitude   = $request->getParam('locLongitude');
     $emergencyType  = $request->getParam('emergencyType');
     $timeDate       = $request->getParam('timeDate');
 
-    //Put the remaining functions over here...........
-    $rescueCenterId = $request->getParam('rescueCenterId');
-    
-    $sql = "INSERT INTO EmergencyLog (ownerName, ownerAddress, mobNo,
-                                      carNo, carModel, carColor,
-                                      locLattitude, locLongitude, emergencyType,
-                                      timeDate, rescueCenterId) 
-                        
-                        VALUES (:ownerName, :ownerAddress, :mobNo, 
-                                :carNo, :carModel, :carColor, 
-                                :locLattitude, :locLongitude, :emergencyType, 
-                                :timeDate, :rescueCenterId)";
+    //CHECK CONDITIONS--------------------------------------------------
+        if($emergencyType == "Accident"){
+            $table = "hospital";
+            $table2 = "policestation";
+            $pre = "hosp";
+            $pre2 = "ps";
+        }elseif($emergencyType == "Medical"){
+            $table = "hospital";
+            $table2 = "";
+            $pre = "hosp";
+            $pre2 = "null";
+        }elseif($emergencyType == "Crimanal"){
+            $table = "policestation";
+            $table2 = "";
+            $pre = "ps";
+            $pre2 = "null";
+        }elseif($emergencyType == "Civil"){
+            $table = "policestation";//cv of
+            $table2 = "civiloffice";
+            $pre = "ps";
+            $pre2 = "cvof";
+        }elseif($emergencyType == "Mechanical"){
+            $table = "carworkshop";//cr ws
+            $table2 = "";
+            $pre = "cws";
+            $pre2 = "null";
+        }
 
-    try{
-        //Get DB Object........
-        $db = new db();
+        $responded = "No";
+
+        $hd = new handlers($ownerName, $ownerAddress, $mobNo, $carNo, $carModel, $carColor, $locLatitude, $locLongitude, $emergencyType, $timeDate);
+            
+        $response = $hd->handle($table, $pre);
         
-        //Connect............
-        $db = $db->connect();
+        if($response == "noCenter"){
+            $message = 'Sorry no '.$table.' is there near you in radius of 50 kilometer';
+        }elseif($response == "Accepted"){
+            $responded ="Yes";
+            $message = 'A '.$table.' will contact you soon';
+        }elseif($response == "Rejected"){
+            $message = 'Sorry all '.$table.'s near you seems to be busy.';
+        }elseif($response == "Pending"){
+            $message = 'Sorry all '.$table.'s near you seems to be busy.';
+        }elseif($response == "Sent" || $response == "Seen"){
+            $responded ="Yes";
+            $message = 'A message is sent to '.$table.'';
+        }elseif($response == "Timeout"){
+            $message = 'Sorry all '.$table.'s near you seems to be busy.';
+        }
 
-        //Prepared statement.......
-        $stmt = $db->prepare($sql);
+
+        // date_default_timezone_set('Asia/Kolkata');
+        // echo "before dusra table";
+        // echo date('h:i:s');
         
-        //Binding values............
-        $stmt->bindParam(':ownerName', $ownerName);
-        $stmt->bindParam(':ownerAddress', $ownerAddress);
-        $stmt->bindParam(':mobNo', $mobNo);
-        $stmt->bindParam(':carNo', $carNo);
-        $stmt->bindParam(':carModel', $carModel);
-        $stmt->bindParam(':carColor', $carColor);
-        $stmt->bindParam(':locLattitude', $locLattitude);
-        $stmt->bindParam(':locLongitude', $locLongitude);
-        $stmt->bindParam(':emergencyType', $emergencyType);
-        $stmt->bindParam(':timeDate', $timeDate);
-        $stmt->bindParam(':rescueCenterId', $rescueCenterId);
-        $stmt->execute();
 
-        echo '{"notice": {"text" : "Request sent!"}';
+        if(!($table2 == "")){
+            // echo"going for second center type";
+            $response2 = $hd->handle($table2, $pre2);
+            if($response2 == "noCenter"){
+                $message = $message.' And sorry no '.$table2.' is there near you in radius of 50 kilometer.';
+            }elseif($response2 == "Sent" || $response == "Seen"){
+                $responded ="Yes";
+                $message = $message.'and a message is sent to '.$table2.'';
+            }
+        }
 
-    } catch(PDOException $e){
-        echo '{"error": {"text":'.$e->getMessage().'}';
-    }
 
-});
+        // echo "before log";
+        // echo date('h:i:s');
+        
+        $hd->putLogEntry($responded);
+
+
+        // echo "after log";
+        // echo date('h:i:s');
+
+ 
+        echo '{"Result": "Success", "Message" :'.$message.'}';
+
+
+    });
