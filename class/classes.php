@@ -144,7 +144,7 @@
         public function checkResponce($noficationId, $action)
         {
             //PREPARE QUERY-----------------------------------------------------
-            if($action == 10){
+            if($action == 6){
                 $sql = 'UPDATE notifications SET response = "Timeout" WHERE id = :id';  //Dhyan me rakh Timeout krna hai......
             }else{
                 $sql = "SELECT * FROM notifications WHERE id = :id";
@@ -162,7 +162,7 @@
                 $stmt->bindParam(':id', $noficationId);
                 //$stmt->bindParam(':tableName', $tableName);
                 $stmt->execute();
-                if($action < 10){
+                if($action < 6){
                     $data = $stmt->fetchAll();
                     //return $data["response"];
                     foreach ($data as $row) {
@@ -301,7 +301,7 @@
                         //Don't wait for police station and civil office
                             if($table == "hospital" || $table == "carworkshop"){
                             // sleep(50);
-                            for ($y = 0; $y <= 10; $y++){
+                            for ($y = 0; $y <= 6; $y++){
                                 sleep(6);
 
                                 $rescueCenterResponce = $fn->checkResponce($notify, $y);                //$y is a Counter 7*10 = 60sec---------------
