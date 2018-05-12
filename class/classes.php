@@ -288,7 +288,7 @@
                             $sourceLng = $lngArr[$x];
                             $destinationTxt = $distanceMatrix['destination_addresses'][0];
                             $notificationMsg = '{"emergencyType": "'.$this->emergencyType.'", "timeDate" : "'.$this->timeDate.'",
-                                                "destination" : {"lat" : "'.$this->locLatitude.'", "lng" : "'.$this->locLongitude.'"},
+                                                "destination" : {"lat" : '.$this->locLatitude.', "lng" : '.$this->locLongitude.'},
                                                 "source" : {"lat" : '.$sourceLat.', "lng" : '.$sourceLng.'},
                                                 "travelTime" : "'.$travelTime.'", "distance" : "'.$distance.'", "location" : "'.$destinationTxt.'",
                                                 "ownerName" : "'.$this->ownerName.'", "mobNo" : '.$this->mobNo.', "carNo" : "'.$this->carNo.'",
