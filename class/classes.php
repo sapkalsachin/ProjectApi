@@ -144,7 +144,7 @@
         public function checkResponce($noficationId, $action)
         {
             //PREPARE QUERY-----------------------------------------------------
-            if($action == 6){
+            if($action == 10){
                 $sql = 'UPDATE notifications SET response = "Timeout" WHERE id = :id';  //Dhyan me rakh Timeout krna hai......
             }else{
                 $sql = "SELECT * FROM notifications WHERE id = :id";
@@ -162,7 +162,7 @@
                 $stmt->bindParam(':id', $noficationId);
                 //$stmt->bindParam(':tableName', $tableName);
                 $stmt->execute();
-                if($action < 6){
+                if($action < 10){
                     $data = $stmt->fetchAll();
                     //return $data["response"];
                     foreach ($data as $row) {
@@ -288,7 +288,7 @@
                             $sourceLng = $lngArr[$x];
                             $destinationTxt = $distanceMatrix['destination_addresses'][0];
                             $notificationMsg = '{"emergencyType": "'.$this->emergencyType.'", "timeDate" : "'.$this->timeDate.'",
-                                                "destination" : {"lat" : '.$this->locLatitude.', "lng" : '.$this->locLongitude.'},
+                                                "destination" : {"lat" : "'.$this->locLatitude.'", "lng" : "'.$this->locLongitude.'"},
                                                 "source" : {"lat" : '.$sourceLat.', "lng" : '.$sourceLng.'},
                                                 "travelTime" : "'.$travelTime.'", "distance" : "'.$distance.'", "location" : "'.$destinationTxt.'",
                                                 "ownerName" : "'.$this->ownerName.'", "mobNo" : '.$this->mobNo.', "carNo" : "'.$this->carNo.'",
@@ -301,7 +301,7 @@
                         //Don't wait for police station and civil office
                             if($table == "hospital" || $table == "carworkshop"){
                             // sleep(50);
-                            for ($y = 0; $y <= 6; $y++){
+                            for ($y = 0; $y <= 10; $y++){
                                 sleep(6);
 
                                 $rescueCenterResponce = $fn->checkResponce($notify, $y);                //$y is a Counter 7*10 = 60sec---------------
